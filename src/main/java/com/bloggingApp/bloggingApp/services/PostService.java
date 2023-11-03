@@ -13,6 +13,6 @@ public interface PostService {
     PostDto getPostById(Integer postId);
     List<PostDto> getPostsByCategory(Integer categoryId);
     List<PostDto> getPostsByUser(Integer userId);
-    List<PostDto> searchPost(Integer userId);
+    List<PostDto> searchPost(String keyword);
 
 }

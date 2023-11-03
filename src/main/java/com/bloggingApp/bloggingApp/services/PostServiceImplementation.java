@@ -33,8 +33,10 @@ public class PostServiceImplementation implements PostService {
     @Override
     public PostDto createPost(PostDto postDto, Integer usrId, Integer categoryId) {
 
-        User user = this.userRepository.findById(usrId).orElseThrow(() -> new ResourceNotFoundException("User", "userId", usrId));
-        Category category = this.categoryRepository.findById(categoryId).orElseThrow(() -> new ResourceNotFoundException("Category", "categoryId", categoryId));
+        User user = this.userRepository.findById(usrId).orElseThrow(() -> new
+                ResourceNotFoundException("User", "userId", usrId));
+        Category category = this.categoryRepository.findById(categoryId).orElseThrow(() -> new
+                ResourceNotFoundException("Category", "categoryId", categoryId));
 
         Post post = this.modelMapper.map(postDto, Post.class);
         post.setImageName("default.png");
@@ -67,12 +69,14 @@ public class PostServiceImplementation implements PostService {
 
     @Override
     public PostResponse getAllPost(Integer pageNumber, Integer pageSize, String sortBy, String orderBy) {
-        Sort sort = orderBy.equalsIgnoreCase("asc")?Sort.by(sortBy).ascending():Sort.by(sortBy).descending();
+        Sort sort = orderBy.equalsIgnoreCase("asc")?Sort.by(sortBy).ascending():Sort.by(sortBy)
+                .descending();
 
         Pageable pageable = (Pageable) PageRequest.of(pageNumber, pageSize, sort);
         Page<Post> posts = this.postRepository.findAll(pageable);
         List<Post> allPosts = posts.getContent();
-        List<PostDto> postDtos = allPosts.stream().map((post) -> this.modelMapper.map(post, PostDto.class)).collect(Collectors.toList());
+        List<PostDto> postDtos = allPosts.stream().map((post) -> this.modelMapper.map(post, PostDto.class))
+                .collect(Collectors.toList());
 
         PostResponse postResponse = new PostResponse();
         postResponse.setContent(postDtos);
@@ -110,7 +114,9 @@ public class PostServiceImplementation implements PostService {
     }
 
     @Override
-    public List<PostDto> searchPost(Integer userId) {
-        return null;
+    public List<PostDto> searchPost(String keyword) {
+        List<Post> posts = this.postRepository.findByTitleContaining(keyword);
+        return posts.stream().map(post->this.modelMapper.map(post, PostDto.class)).collect(Collectors.toList());
     }
+
 }
