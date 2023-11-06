@@ -1,12 +1,11 @@
 package com.bloggingApp.bloggingApp.security;
 
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.MalformedJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -18,36 +17,28 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final UserDetailsService userDetailsService;
     private final JwtUtil jwtUtil;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+    protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response,
+                                    @NonNull FilterChain filterChain)
             throws ServletException, IOException {
 
-        String requestToken = request.getHeader("Authorization");
-        String userName = null;
-        String token = null;
+        final String requestToken = request.getHeader("Authorization");
+        final String userName;
+        final String token;
 
-        if(requestToken != null && requestToken.startsWith("Bearer")) {
-            token = requestToken.substring(7);
-
-            try {
-                userName = jwtUtil.extractUsername(token);
-            } catch (IllegalArgumentException e) {
-
-            } catch (ExpiredJwtException e) {
-
-            } catch (MalformedJwtException e) {
-
-            }
-
-        } else {
-
+        if(requestToken == null || !requestToken.startsWith("Bearer ")) {
+            filterChain.doFilter(request, response);
+            return;
         }
+
+        token = requestToken.substring(7);
+        userName = jwtUtil.extractUsername(token);
 
         if(userName != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(userName);
@@ -61,12 +52,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
 
-            } else {
-
             }
-
-        } else {
-
         }
 
         filterChain.doFilter(request, response);

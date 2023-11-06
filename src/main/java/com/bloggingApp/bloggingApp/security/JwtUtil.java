@@ -14,9 +14,8 @@ import java.util.function.Function;
 @Service
 public class JwtUtil {
 
-    public static final long JWT_TOKEN_VALIDITY = 5 * 60 * 60;
-
-    private String SECRET_KEY = "jwtTokenKey";
+    private static final long JWT_TOKEN_VALIDITY = 1000 * 60 * 24;
+    private static final String SECRET_KEY = "v25fLur/7z+/7Ae5gTpCoe39SLsbPRxSaohIsUMbaoHQPN0QaUo7GIUPgVqtd0xn";
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
